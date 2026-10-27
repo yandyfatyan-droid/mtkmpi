@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan FPB - Media Pembelajaran Matematika SD Kelas 6</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Inter untuk tampilan ceria ramah anak -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SweetAlert2 untuk pop-up menarik -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Canvas Confetti untuk efek kemenangan -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Fredoka', 'cursive'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#4F46E5',
+                            purple: '#7C3AED',
+                            pink: '#EC4899',
+                            yellow: '#F59E0B',
+                            green: '#10B981',
+                            lightblue: '#06B6D4'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Fredoka', 'Inter', sans-serif;
+            background-color: #F0F9FF;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar untuk kenyamanan anak-anak */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E0F2FE;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3B82F6;
+            border-radius: 5px;
+        }
+        .draggable {
+            cursor: grab;
+            user-select: none;
+        }
+        .draggable:active {
+            cursor: grabbing;
+        }
+        .dropzone.highlight {
+            border-color: #10B981;
+            background-color: #D1FAE5;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-md border-b-4 border-yellow-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo & Judul -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-yellow-400 to-red-400 flex items-center justify-center text-white shadow-lg transform hover:scale-105 transition">
+                        <i data-lucide="sparkles" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-bold tracking-wide bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
+                            Petualangan FPB
+                        </h1>
+                        <p class="text-xs text-slate-500 font-sans font-semibold">Kelas 6 SD - Matematika Ceria</p>
+                    </div>
+                </div>
+
+                <!-- Tombol Navigasi Desktop -->
+                <nav class="hidden md:flex space-x-2">
+                    <button onclick="switchTab('home')" id="nav-home" class="nav-btn px-4 py-2.5 rounded-2xl text-base font-bold transition duration-200 flex items-center gap-2 text-slate-600 hover:bg-blue-100 hover:text-blue-600">
+                        <i data-lucide="home" class="w-5 h-5"></i> Home
+                    </button>
+                    <button onclick="switchTab('tujuan')" id="nav-tujuan" class="nav-btn px-4 py-2.5 rounded-2xl text-base font-bold transition duration-200 flex items-center gap-2 text-slate-600 hover:bg-purple-100 hover:text-purple-600">
+                        <i data-lucide="target" class="w-5 h-5"></i> Tujuan
+                    </button>
+                    <button onclick="switchTab('materi')" id="nav-materi" class="nav-btn px-4 py-2.5 rounded-2xl text-base font-bold transition duration-200 flex items-center gap-2 text-slate-600 hover:bg-pink-100 hover:text-pink-600">
+                        <i data-lucide="book-open" class="w-5 h-5"></i> Materi
+                    </button>
+                    <button onclick="switchTab('kuis')" id="nav-kuis" class="nav-btn px-4 py-2.5 rounded-2xl text-base font-bold transition duration-200 flex items-center gap-2 text-slate-600 hover:bg-yellow-100 hover:text-yellow-600">
+                        <i data-lucide="brain-circuit" class="w-5 h-5"></i> Kuis
+                    </button>
+                    <button onclick="switchTab('game')" id="nav-game" class="nav-btn px-4 py-2.5 rounded-2xl text-base font-bold transition duration-200 flex items-center gap-2 text-slate-600 hover:bg-green-100 hover:text-green-600">
+                        <i data-lucide="gamepad-2" class="w-5 h-5"></i> Drag & Drop
+                    </button>
+                    <button onclick="switchTab('tentang')" id="nav-tentang" class="nav-btn px-4 py-2.5 rounded-2xl text-base font-bold transition duration-200 flex items-center gap-2 text-slate-600 hover:bg-cyan-100 hover:text-cyan-600">
+                        <i data-lucide="user" class="w-5 h-5"></i> Tentang
+                    </button>
+                </nav>
+
+                <!-- Tombol Menu Mobile -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none">
+                        <i data-lucide="menu" class="w-7 h-7"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Mobile Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('home')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 flex items-center gap-3 hover:bg-blue-50">
+                <i data-lucide="home" class="w-5 h-5 text-blue-500"></i> Home
+            </button>
+            <button onclick="switchTab('tujuan')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 flex items-center gap-3 hover:bg-purple-50">
+                <i data-lucide="target" class="w-5 h-5 text-purple-500"></i> Tujuan Pembelajaran
+            </button>
+            <button onclick="switchTab('materi')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 flex items-center gap-3 hover:bg-pink-50">
+                <i data-lucide="book-open" class="w-5 h-5 text-pink-500"></i> Materi Pembelajaran
+            </button>
+            <button onclick="switchTab('kuis')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 flex items-center gap-3 hover:bg-yellow-50">
+                <i data-lucide="brain-circuit" class="w-5 h-5 text-yellow-500"></i> Kuis Interaktif
+            </button>
+            <button onclick="switchTab('game')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 flex items-center gap-3 hover:bg-green-50">
+                <i data-lucide="gamepad-2" class="w-5 h-5 text-green-500"></i> Permainan Drag & Drop
+            </button>
+            <button onclick="switchTab('tentang')" class="w-full text-left px-4 py-3 rounded-xl font-bold text-slate-700 flex items-center gap-3 hover:bg-cyan-50">
+                <i data-lucide="user" class="w-5 h-5 text-cyan-500"></i> Tentang Pengembang
+            </button>
+        </div>
+    </header>
+
+    <!-- UTAMA CONTAINER KONTEN TAB -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- 1. HOME TAB -->
+        <section id="tab-home" class="tab-content active">
+            <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border-4 border-blue-200 relative overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <span class="inline-block px-4 py-1.5 bg-yellow-100 text-yellow-800 rounded-full font-bold text-sm mb-4 border border-yellow-300">
+                            👋 Selamat Datang, Teman-Teman Hebat!
+                        </span>
+                        <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-800 leading-tight mb-4">
+                            Mari Belajar <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">FPB</span> dengan Cara Mudah & Seru!
+                        </h2>
+                        <p class="text-lg text-slate-600 font-sans mb-8 leading-relaxed">
+                            Apakah kamu tahu cara membagi benda menjadi beberapa kelompok sama banyak? Mari kita pelajari rahasia Faktor Persekutuan Terbesar (FPB) bersama-sama!
+                        </p>
+                        <div class="flex flex-wrap gap-4">
+                            <button onclick="switchTab('materi')" class="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-200 flex items-center gap-3">
+                                <i data-lucide="play-circle" class="w-6 h-6"></i> Mulai Belajar Now
+                            </button>
+                            <button onclick="switchTab('game')" class="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-200 flex items-center gap-3">
+                                <i data-lucide="gamepad-2" class="w-6 h-6"></i> Mainkan Game
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-center">
+                        <div class="relative w-full max-w-md">
+                            <!-- SVG Mascot Math Superhero -->
+                            <div class="w-full h-80 bg-gradient-to-tr from-blue-400 via-indigo-400 to-purple-400 rounded-3xl flex items-center justify-center p-6 text-white shadow-2xl relative overflow-hidden">
+                                <div class="absolute -top-10 -left-10 w-32 h-32 bg-white/20 rounded-full blur-xl"></div>
+                                <div class="text-center z-10">
+                                    <div class="w-28 h-28 bg-white text-indigo-600 rounded-full mx-auto flex items-center justify-center text-5xl font-black shadow-lg mb-4 animate-bounce">
+                                        ÷
+                                    </div>
+                                    <h3 class="text-2xl font-bold">Kapten FPB</h3>
+                                    <p class="text-blue-100 font-sans text-sm mt-1">Siap membantumu menemukan faktor terbesar!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature Highlights -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 pt-8 border-t-2 border-slate-100">
+                    <div class="p-5 bg-blue-50 rounded-2xl border border-blue-100 flex items-center gap-4">
+                        <div class="p-3 bg-blue-500 text-white rounded-xl">
+                            <i data-lucide="book-open" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">Materi Interaktif</h4>
+                            <p class="text-xs text-slate-500 font-sans">Pohon faktor & faktor persekutuan</p>
+                        </div>
+                    </div>
+                    <div class="p-5 bg-yellow-50 rounded-2xl border border-yellow-100 flex items-center gap-4">
+                        <div class="p-3 bg-yellow-500 text-white rounded-xl">
+                            <i data-lucide="award" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">Kuis Seru</h4>
+                            <p class="text-xs text-slate-500 font-sans">Uji kemampuanmu & raih skor tinggi</p>
+                        </div>
+                    </div>
+                    <div class="p-5 bg-green-50 rounded-2xl border border-green-100 flex items-center gap-4">
+                        <div class="p-3 bg-green-500 text-white rounded-xl">
+                            <i data-lucide="puzzle" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">Game Praktis</h4>
+                            <p class="text-xs text-slate-500 font-sans">Kelompokkan angka dengan drag & drop</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. TUJUAN PEMBELAJARAN TAB -->
+        <section id="tab-tujuan" class="tab-content">
+            <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border-4 border-purple-200">
+                <div class="text-center max-w-2xl mx-auto mb-10">
+                    <span class="px-4 py-1.5 bg-purple-100 text-purple-800 rounded-full font-bold text-sm">Target Pembelajaran</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 mt-2">Apa yang Akan Kamu Pelajari?</h2>
+                    <p class="text-slate-600 font-sans mt-2">Capaian Pembelajaran Matematika Fase C (Kelas 6 SD)</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Tujuan 1 -->
+                    <div class="p-6 bg-purple-50 rounded-2xl border-2 border-purple-200 flex gap-4 items-start hover:shadow-md transition">
+                        <div class="w-12 h-12 bg-purple-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl flex-shrink-0">1</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-purple-900 mb-2">Memahami Konsep Faktor</h3>
+                            <p class="text-slate-600 font-sans leading-relaxed">
+                                Siswa mampu memahami dan mengidentifikasi bilangan-bilangan yang merupakan faktor dari suatu bilangan bulat tertentu dengan tepat.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tujuan 2 -->
+                    <div class="p-6 bg-pink-50 rounded-2xl border-2 border-pink-200 flex gap-4 items-start hover:shadow-md transition">
+                        <div class="w-12 h-12 bg-pink-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl flex-shrink-0">2</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-pink-900 mb-2">Menentukan Faktor Persekutuan</h3>
+                            <p class="text-slate-600 font-sans leading-relaxed">
+                                Siswa dapat menemukan faktor persekutuan (faktor yang sama) dari dua atau tiga bilangan bulat secara teliti.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tujuan 3 -->
+                    <div class="p-6 bg-blue-50 rounded-2xl border-2 border-blue-200 flex gap-4 items-start hover:shadow-md transition">
+                        <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl flex-shrink-0">3</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-blue-900 mb-2">Menentukan FPB</h3>
+                            <p class="text-slate-600 font-sans leading-relaxed">
+                                Siswa dapat menentukan Faktor Persekutuan Terbesar (FPB) menggunakan metode himpunan faktor maupun metode Pohon Faktor (Faktorisasi Prima).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tujuan 4 -->
+                    <div class="p-6 bg-emerald-50 rounded-2xl border-2 border-emerald-200 flex gap-4 items-start hover:shadow-md transition">
+                        <div class="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl flex-shrink-0">4</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-emerald-900 mb-2">Menyelesaikan Masalah Soal Cerita</h3>
+                            <p class="text-slate-600 font-sans leading-relaxed">
+                                Siswa dapat menyelesaikan masalah sehari-hari yang berkaitan dengan FPB (seperti membagikan barang ke beberapa kantong dengan jumlah sama banyak).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-6 bg-yellow-50 rounded-2xl border-2 border-yellow-300 text-center">
+                    <p class="text-yellow-900 font-bold text-lg">💡 Tips Belajar:</p>
+                    <p class="text-slate-700 font-sans">Jangan ragu untuk mencoba simulasi dan permainan agar kamu lebih mudah paham!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. MATERI TAB (LENGKAP DENGAN KALKULATOR & SIMULATOR) -->
+        <section id="tab-materi" class="tab-content">
+            <div class="space-y-8">
+                <!-- Penjelasan 1: Apa itu FPB? -->
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-pink-200">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="p-3 bg-pink-500 text-white rounded-2xl">
+                            <i data-lucide="help-circle" class="w-8 h-8"></i>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Apa Itu FPB?</h2>
+                    </div>
+                    <div class="prose max-w-none text-slate-600 font-sans leading-relaxed text-lg">
+                        <p class="mb-4">
+                            <strong>FPB</strong> adalah singkatan dari <strong>Faktor Persekutuan Terbesar</strong>.
+                        </p>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li><strong>Faktor</strong>: Bilangan yang dapat membagi habis suatu bilangan tanpa sisa.</li>
+                            <li><strong>Faktor Persekutuan</strong>: Faktor-faktor yang <em>sama</em> dari dua bilangan atau lebih.</li>
+                            <li><strong>FPB</strong>: Faktor persekutuan yang nilainya <strong>paling besar</strong>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Penjelasan 2: Dua Cara Mencari FPB -->
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-indigo-200">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-6 flex items-center gap-3">
+                        <i data-lucide="layers" class="w-8 h-8 text-indigo-600"></i> Cara Mencari FPB
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Metode 1 -->
+                        <div class="bg-indigo-50 p-6 rounded-2xl border-2 border-indigo-200">
+                            <h3 class="text-xl font-bold text-indigo-900 mb-3">1. Metode Persekutuan (Daftar Faktor)</h3>
+                            <p class="text-slate-700 font-sans text-sm mb-4">Contoh: Mencari FPB dari 12 dan 18</p>
+                            <div class="bg-white p-4 rounded-xl font-sans text-sm space-y-2 border border-indigo-100">
+                                <p><strong>Faktor dari 12:</strong> <span class="text-indigo-600 font-bold">1, 2, 3, 6, 12</span></p>
+                                <p><strong>Faktor dari 18:</strong> <span class="text-indigo-600 font-bold">1, 2, 3, 6, 9, 18</span></p>
+                                <p><strong>Faktor Persekutuan:</strong> <span class="text-purple-600 font-bold">1, 2, 3, 6</span></p>
+                                <div class="p-2 bg-yellow-100 rounded-lg text-yellow-900 font-bold mt-2">
+                                    FPB (Yang Terbesar) = 6
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metode 2 -->
+                        <div class="bg-purple-50 p-6 rounded-2xl border-2 border-purple-200">
+                            <h3 class="text-xl font-bold text-purple-900 mb-3">2. Metode Pohon Faktor (Faktorisasi)</h3>
+                            <p class="text-slate-700 font-sans text-sm mb-4">Menggunakan Bilangan Prima (2, 3, 5, 7, ...)</p>
+                            <div class="bg-white p-4 rounded-xl font-sans text-sm space-y-2 border border-purple-100">
+                                <p><strong>Faktorisasi Prima 12:</strong> 2² × 3 (2 × 2 × 3)</p>
+                                <p><strong>Faktorisasi Prima 18:</strong> 2 × 3² (2 × 3 × 3)</p>
+                                <p class="text-xs text-slate-500">*Ambil faktor prima yang sama dengan pangkat terkecil.</p>
+                                <div class="p-2 bg-yellow-100 rounded-lg text-yellow-900 font-bold mt-2">
+                                    FPB = 2 × 3 = 6
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIMULATOR INTERAKTIF HITUNG FPB -->
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="calculator" class="w-8 h-8 text-yellow-300"></i>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold">Simulator Interaktif Hitung FPB</h2>
+                    </div>
+                    <p class="font-sans text-blue-100 mb-6">Masukkan dua angka di bawah ini untuk melihat cara kerja pencarian FPB secara otomatis!</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block font-bold mb-2 text-sm text-blue-200">Angka Pertama:</label>
+                            <input type="number" id="calc-num1" value="12" min="1" max="100" class="w-full px-4 py-3 rounded-xl text-slate-800 font-bold text-xl text-center border-4 border-blue-300 focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-2 text-sm text-blue-200">Angka Kedua:</label>
+                            <input type="number" id="calc-num2" value="18" min="1" max="100" class="w-full px-4 py-3 rounded-xl text-slate-800 font-bold text-xl text-center border-4 border-blue-300 focus:outline-none focus:border-yellow-400">
+                        </div>
+                    </div>
+
+                    <button onclick="calculateFPB()" class="w-full py-4 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-extrabold text-xl rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+                        <i data-lucide="sparkles" class="w-6 h-6"></i> Hitung FPB Sekarang
+                    </button>
+
+                    <!-- HASIL SIMULATOR -->
+                    <div id="calc-result" class="mt-6 p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 hidden">
+                        <!-- Diisi via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. KUIS INTERAKTIF TAB -->
+        <section id="tab-kuis" class="tab-content">
+            <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border-4 border-yellow-200">
+                <!-- Header Kuis -->
+                <div class="flex flex-col sm:flex-row justify-between items-center pb-6 mb-6 border-b-2 border-slate-100 gap-4">
+                    <div>
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 font-bold text-xs rounded-full">Uji Kemampuan</span>
+                        <h2 class="text-3xl font-extrabold text-slate-800">Kuis Matematika FPB</h2>
+                    </div>
+                    <!-- Score & Timer Display -->
+                    <div class="flex items-center gap-4">
+                        <div class="px-5 py-2.5 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-2">
+                            <i data-lucide="trophy" class="w-5 h-5 text-yellow-500"></i>
+                            <span class="text-sm font-bold text-slate-600">Skor:</span>
+                            <span id="quiz-score" class="text-xl font-black text-blue-600">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Container Pertanyaan Kuis -->
+                <div id="quiz-container">
+                    <div class="mb-6">
+                        <span id="quiz-progress" class="text-sm font-bold text-indigo-600 font-sans">Soal 1 dari 5</span>
+                        <h3 id="quiz-question" class="text-xl sm:text-2xl font-bold text-slate-800 mt-2 leading-snug">
+                            Loading pertanyaan...
+                        </h3>
+                    </div>
+
+                    <!-- Pilihan Jawaban -->
+                    <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                        <!-- Options di-generate lewat JavaScript -->
+                    </div>
+
+                    <!-- Feedback Jawaban -->
+                    <div id="quiz-feedback" class="p-4 rounded-xl font-sans hidden mb-6"></div>
+
+                    <!-- Navigasi Kuis -->
+                    <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                        <button id="prev-btn" onclick="prevQuestion()" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition flex items-center gap-2 disabled:opacity-50" disabled>
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i> Sebelum
+                        </button>
+                        <button id="next-btn" onclick="nextQuestion()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2">
+                            Berikutnya <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Container Hasil Akhir Kuis -->
+                <div id="quiz-result" class="hidden text-center py-10">
+                    <div class="w-24 h-24 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                        <i data-lucide="award" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="text-3xl font-extrabold text-slate-800 mb-2">Selesai!</h3>
+                    <p class="text-lg text-slate-600 font-sans mb-6">Kamu telah menyelesaikan Kuis FPB.</p>
+                    
+                    <div class="inline-block bg-indigo-50 border-2 border-indigo-200 px-8 py-6 rounded-3xl mb-8">
+                        <span class="text-sm font-bold text-indigo-600 uppercase tracking-wider block">Skor Akhir Kamu</span>
+                        <span id="final-score" class="text-6xl font-black text-indigo-700">0</span>
+                    </div>
+
+                    <div>
+                        <button onclick="restartQuiz()" class="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-95 inline-flex items-center gap-2">
+                            <i data-lucide="rotate-ccw" class="w-6 h-6"></i> Coba Lagi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. DRAG AND DROP GAME TAB -->
+        <section id="tab-game" class="tab-content">
+            <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border-4 border-green-200">
+                <div class="text-center max-w-2xl mx-auto mb-8">
+                    <span class="px-4 py-1.5 bg-green-100 text-green-800 rounded-full font-bold text-sm">Permainan Interaktif</span>
+                    <h2 class="text-3xl font-extrabold text-slate-800 mt-2">Permainan Faktor Angka</h2>
+                    <p class="text-slate-600 font-sans mt-2">Tarik (Drag) angka-angka di bawah dan letakkan (Drop) ke kotak yang merupakan faktor dari angka yang diminta!</p>
+                </div>
+
+                <div class="bg-yellow-50 p-4 rounded-2xl border border-yellow-200 text-center font-bold text-yellow-900 mb-8">
+                    🎯 Tantangan: Masukkan angka yang merupakan <span class="text-red-600 text-xl">FAKTOR DARI 12</span> ke dalam Keranjang!
+                </div>
+
+                <!-- Container Drag Source -->
+                <div class="mb-10">
+                    <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 text-center">Pilihan Angka (Tarik ke bawah):</h4>
+                    <div id="drag-source" class="flex flex-wrap justify-center gap-4 min-h-[80px] p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300">
+                        <div draggable="true" ondragstart="drag(event)" id="drag-1" data-val="1" class="draggable w-16 h-16 bg-blue-500 text-white font-extrabold text-2xl rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition">1</div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag-2" data-val="2" class="draggable w-16 h-16 bg-purple-500 text-white font-extrabold text-2xl rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition">2</div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag-5" data-val="5" class="draggable w-16 h-16 bg-red-500 text-white font-extrabold text-2xl rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition">5</div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag-3" data-val="3" class="draggable w-16 h-16 bg-green-500 text-white font-extrabold text-2xl rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition">3</div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag-7" data-val="7" class="draggable w-16 h-16 bg-pink-500 text-white font-extrabold text-2xl rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition">7</div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag-4" data-val="4" class="draggable w-16 h-16 bg-yellow-500 text-white font-extrabold text-2xl rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition">4</div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag-6" data-val="6" class="draggable w-16 h-16 bg-indigo-500 text-white font-extrabold text-2xl rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition">6</div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag-9" data-val="9" class="draggable w-16 h-16 bg-orange-500 text-white font-extrabold text-2xl rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition">9</div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag-12" data-val="12" class="draggable w-16 h-16 bg-teal-500 text-white font-extrabold text-2xl rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition">12</div>
+                    </div>
+                </div>
+
+                <!-- Drop Target -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Dropzone Faktor 12 -->
+                    <div ondrop="drop(event, true)" ondragover="allowDrop(event)" ondragenter="highlightDropzone(event)" ondragleave="unhighlightDropzone(event)" class="dropzone p-6 bg-emerald-50 rounded-3xl border-4 border-emerald-400 border-dashed min-h-[200px] flex flex-col items-center justify-start transition">
+                        <div class="flex items-center gap-2 text-emerald-800 font-extrabold text-xl mb-4">
+                            <i data-lucide="check-circle-2" class="w-6 h-6"></i> Keranjang Faktor 12
+                        </div>
+                        <div id="target-faktor" class="flex flex-wrap justify-center gap-3 w-full">
+                            <!-- Tempat Angka Faktor -->
+                        </div>
+                    </div>
+
+                    <!-- Dropzone Bukan Faktor -->
+                    <div ondrop="drop(event, false)" ondragover="allowDrop(event)" ondragenter="highlightDropzone(event)" ondragleave="unhighlightDropzone(event)" class="dropzone p-6 bg-rose-50 rounded-3xl border-4 border-rose-300 border-dashed min-h-[200px] flex flex-col items-center justify-start transition">
+                        <div class="flex items-center gap-2 text-rose-800 font-extrabold text-xl mb-4">
+                            <i data-lucide="x-circle" class="w-6 h-6"></i> Keranjang BUKAN Faktor 12
+                        </div>
+                        <div id="target-bukan-faktor" class="flex flex-wrap justify-center gap-3 w-full">
+                            <!-- Tempat Angka Bukan Faktor -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons Game -->
+                <div class="mt-8 text-center flex justify-center gap-4">
+                    <button onclick="checkGameResult()" class="px-8 py-3.5 bg-green-600 hover:bg-green-700 text-white font-extrabold text-lg rounded-2xl shadow-lg transition flex items-center gap-2">
+                        <i data-lucide="check" class="w-6 h-6"></i> Periksa Jawaban
+                    </button>
+                    <button onclick="resetGame()" class="px-6 py-3.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-lg rounded-2xl transition flex items-center gap-2">
+                        <i data-lucide="rotate-ccw" class="w-5 h-5"></i> Reset Game
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. TENTANG PENGEMBANG TAB -->
+        <section id="tab-tentang" class="tab-content">
+            <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border-4 border-cyan-200">
+                <div class="max-w-3xl mx-auto">
+                    <div class="text-center mb-8">
+                        <span class="px-4 py-1.5 bg-cyan-100 text-cyan-800 rounded-full font-bold text-sm">Profil Pengembang</span>
+                        <h2 class="text-3xl font-extrabold text-slate-800 mt-2">Informasi Media Pembelajaran</h2>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 sm:p-8 rounded-3xl border-2 border-cyan-200 flex flex-col sm:flex-row items-center gap-8 mb-8">
+                        <div class="w-32 h-32 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-white text-5xl font-extrabold shadow-xl flex-shrink-0">
+                            S
+                        </div>
+                        <div class="space-y-3 text-center sm:text-left">
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-800">Supariyandi</h3>
+                                <p class="text-cyan-700 font-bold font-sans">Guru SD / Pengembang Media Pembelajaran</p>
+                            </div>
+                            <p class="text-slate-600 font-sans text-sm leading-relaxed">
+                                Didedikasikan untuk menciptakan media pembelajaran matematika yang interaktif, menyenangkan, dan mudah dipahami oleh siswa Sekolah Dasar.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Detail Aplikasi -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans">
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                            <span class="text-xs text-slate-400 font-bold uppercase block">Materi Pembelajaran</span>
+                            <span class="text-base font-bold text-slate-700">Faktor Persekutuan Terbesar (FPB)</span>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                            <span class="text-xs text-slate-400 font-bold uppercase block">Target Pengguna</span>
+                            <span class="text-base font-bold text-slate-700">Siswa SD Kelas 6 (Fase C)</span>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                            <span class="text-xs text-slate-400 font-bold uppercase block">Teknologi</span>
+                            <span class="text-base font-bold text-slate-700">HTML5, Tailwind CSS, JS SPA</span>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                            <span class="text-xs text-slate-400 font-bold uppercase block">Versi Aplikasi</span>
+                            <span class="text-base font-bold text-slate-700">v1.0.0 (Interaktif & Responsive)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 font-sans text-sm">
+                &copy; 2026 Media Pembelajaran Interaktif Matematika SD - Dikembangkan oleh <strong class="text-slate-700">Supariyandi</strong>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ========================================================
+           1. LOGIK NAVIGASI SINGLE PAGE APPLICATION (SPA)
+           ======================================================== */
+        function switchTab(tabId) {
+            // Sembunyikan semua tab konten
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(el => el.classList.remove('active'));
+
+            // Reset styling tombol navigasi desktop
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.classList.remove('bg-blue-100', 'text-blue-600', 'bg-purple-100', 'text-purple-600', 'bg-pink-100', 'text-pink-600', 'bg-yellow-100', 'text-yellow-600', 'bg-green-100', 'text-green-600', 'bg-cyan-100', 'text-cyan-600');
+            });
+
+            // Tampilkan tab yang dipilih
+            const targetContent = document.getElementById('tab-' + tabId);
+            if(targetContent) {
+                targetContent.classList.add('active');
+            }
+
+            // Highlighting tombol navigasi aktif
+            const activeNav = document.getElementById('nav-' + tabId);
+            if(activeNav) {
+                activeNav.classList.add('bg-blue-100', 'text-blue-600');
+            }
+
+            // Sembunyikan menu mobile jika terbuka
+            document.getElementById('mobile-menu').classList.add('hidden');
+
+            // Scroll ke atas dengan mulus
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        /* ========================================================
+           2. LOGIK SIMULATOR FPB & POHON FAKTOR (MATERI)
+           ======================================================== */
+        function getFactors(num) {
+            let factors = [];
+            for (let i = 1; i <= num; i++) {
+                if (num % i === 0) factors.push(i);
+            }
+            return factors;
+        }
+
+        function getPrimeFactors(num) {
+            let factors = [];
+            let divisor = 2;
+            let n = num;
+            while (n >= 2) {
+                if (n % divisor === 0) {
+                    factors.push(divisor);
+                    n = n / divisor;
+                } else {
+                    divisor++;
+                }
+            }
+            return factors;
+        }
+
+        function calculateFPB() {
+            const n1 = parseInt(document.getElementById('calc-num1').value);
+            const n2 = parseInt(document.getElementById('calc-num2').value);
+
+            if (!n1 || !n2 || n1 <= 0 || n2 <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Masukkan Angka Valid!',
+                    text: 'Mohon masukkan dua angka bulat positif.',
+                    confirmColor: '#4F46E5'
+                });
+                return;
+            }
+
+            const factors1 = getFactors(n1);
+            const factors2 = getFactors(n2);
+            
+            // Cari faktor persekutuan
+            const commonFactors = factors1.filter(val => factors2.includes(val));
+            const fpb = Math.max(...commonFactors);
+
+            // Faktorisasi Prima
+            const prime1 = getPrimeFactors(n1);
+            const prime2 = getPrimeFactors(n2);
+
+            const resultDiv = document.getElementById('calc-result');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+                <div class="space-y-4 font-sans text-white">
+                    <h4 class="text-xl font-bold font-display text-yellow-300">Hasil Perhitungan FPB (${n1} & ${n2}):</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white/10 p-4 rounded-xl">
+                            <p class="font-bold text-yellow-200">Faktor dari ${n1}:</p>
+                            <p class="text-lg">${factors1.join(', ')}</p>
+                            <p class="text-xs text-blue-200 mt-1">Faktorisasi Prima: ${prime1.join(' × ')}</p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-xl">
+                            <p class="font-bold text-yellow-200">Faktor dari ${n2}:</p>
+                            <p class="text-lg">${factors2.join(', ')}</p>
+                            <p class="text-xs text-blue-200 mt-1">Faktorisasi Prima: ${prime2.join(' × ')}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/20 p-4 rounded-xl border border-white/30">
+                        <p><strong>Faktor Persekutuan (Sama):</strong> ${commonFactors.join(', ')}</p>
+                        <p class="text-2xl font-black text-yellow-300 mt-2 font-display">
+                            🎉 FPB dari ${n1} dan ${n2} adalah ${fpb}
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ========================================================
+           3. LOGIK KUIS INTERAKTIF
+           ======================================================== */
+        const quizData = [
+            {
+                question: "Faktor dari bilangan 6 adalah...",
+                options: ["1, 2, 3, 6", "1, 2, 4, 6", "2, 3, 6", "1, 3, 6"],
+                answer: 0
+            },
+            {
+                question: "Faktor persekutuan dari 8 dan 12 yang BENAR adalah...",
+                options: ["1, 2, 4, 8", "1, 2, 4", "2, 4, 6", "1, 2, 3, 4"],
+                answer: 1
+            },
+            {
+                question: "Berapakah FPB dari 15 dan 20?",
+                options: ["3", "5", "10", "15"],
+                answer: 1
+            },
+            {
+                question: "Ibu memiliki 12 apel dan 18 jeruk. Ibu ingin membagikannya ke dalam kantong plastik dengan jumlah sama banyak. Berapa jumlah kantong plastik terbanyak yang dibutuhkan?",
+                options: ["3 kantong", "4 kantong", "6 kantong", "9 kantong"],
+                answer: 2
+            },
+            {
+                question: "Berapakah FPB dari 24 dan 36?",
+                options: ["6", "8", "12", "18"],
+                answer: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        function loadQuestion() {
+            const q = quizData[currentQuestion];
+            document.getElementById('quiz-progress').innerText = `Soal ${currentQuestion + 1} dari ${quizData.length}`;
+            document.getElementById('quiz-question').innerText = q.question;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                const isSelected = userAnswers[currentQuestion] === index;
+                const btn = document.createElement('button');
+                btn.className = `p-4 rounded-2xl text-left font-bold text-base transition border-2 flex items-center justify-between ${
+                    isSelected 
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' 
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-indigo-50 hover:border-indigo-300'
+                }`;
+                btn.onclick = () => selectOption(index);
+                btn.innerHTML = `
+                    <span>${String.fromCharCode(65 + index)}. ${opt}</span>
+                    ${isSelected ? '<i data-lucide="check-circle" class="w-5 h-5"></i>' : ''}
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Update state tombol navigasi
+            document.getElementById('prev-btn').disabled = currentQuestion === 0;
+            if (currentQuestion === quizData.length - 1) {
+                document.getElementById('next-btn').innerText = 'Selesai & Lihat Hasil';
+            } else {
+                document.getElementById('next-btn').innerHTML = 'Berikutnya <i data-lucide="arrow-right" class="w-5 h-5 inline"></i>';
+            }
+
+            lucide.createIcons();
+        }
+
+        function selectOption(index) {
+            userAnswers[currentQuestion] = index;
+            
+            // Hitung Ulang Skor
+            score = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === quizData[idx].answer) {
+                    score += 20;
+                }
+            });
+
+            document.getElementById('quiz-score').innerText = score;
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function showQuizResult() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            const resultDiv = document.getElementById('quiz-result');
+            resultDiv.classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+
+            // Efek Confetti jika skor baguss
+            if (score >= 60) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            userAnswers.fill(null);
+            document.getElementById('quiz-score').innerText = 0;
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        /* ========================================================
+           4. LOGIK GAME DRAG AND DROP
+           ======================================================== */
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function highlightDropzone(ev) {
+            ev.currentTarget.classList.add('highlight');
+        }
+
+        function unhighlightDropzone(ev) {
+            ev.currentTarget.classList.remove('highlight');
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev, isFaktorTarget) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            
+            let dropTarget = ev.currentTarget.querySelector('div[id^="target-"]');
+            if (dropTarget) {
+                dropTarget.appendChild(draggedElement);
+            }
+            ev.currentTarget.classList.remove('highlight');
+        }
+
+        function checkGameResult() {
+            const targetFaktor = document.getElementById('target-faktor');
+            const targetBukanFaktor = document.getElementById('target-bukan-faktor');
+
+            const faktorItems = Array.from(targetFaktor.children);
+            const bukanFaktorItems = Array.from(targetBukanFaktor.children);
+
+            // Faktor dari 12 adalah: 1, 2, 3, 4, 6, 12
+            const validFaktor = [1, 2, 3, 4, 6, 12];
+
+            let correctCount = 0;
+            let totalPlaced = faktorItems.length + bukanFaktorItems.length;
+
+            if (totalPlaced < 9) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Belum Selesai!',
+                    text: 'Tarik semua angka terlebih dahulu ke keranjang yang sesuai ya!',
+                    confirmColor: '#4F46E5'
+                });
+                return;
+            }
+
+            let isAllCorrect = true;
+
+            // Cek keranjang Faktor
+            faktorItems.forEach(item => {
+                const val = parseInt(item.getAttribute('data-val'));
+                if (!validFaktor.includes(val)) {
+                    isAllCorrect = false;
+                }
+            });
+
+            // Cek keranjang Bukan Faktor
+            bukanFaktorItems.forEach(item => {
+                const val = parseInt(item.getAttribute('data-val'));
+                if (validFaktor.includes(val)) {
+                    isAllCorrect = false;
+                }
+            });
+
+            if (isAllCorrect) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Hebat Sekali! 🎉',
+                    text: 'Kamu berhasil mengelompokkan semua faktor 12 dengan sempurna!',
+                    confirmColor: '#10B981'
+                });
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Masih Ada yang Keliru 😅',
+                    text: 'Yuk periksa lagi! Faktor dari 12 adalah angka yang bisa membagi habis 12.',
+                    confirmColor: '#EF4444'
+                });
+            }
+        }
+
+        function resetGame() {
+            const source = document.getElementById('drag-source');
+            const targetFaktor = document.getElementById('target-faktor');
+            const targetBukanFaktor = document.getElementById('target-bukan-faktor');
+
+            // Kembalikan semua ke source
+            while (targetFaktor.firstChild) {
+                source.appendChild(targetFaktor.firstChild);
+            }
+            while (targetBukanFaktor.firstChild) {
+                source.appendChild(targetBukanFaktor.firstChild);
+            }
+        }
+
+        // Inisialisasi Aplikasi pada saat window dimuat
+        window.onload = function() {
+            lucide.createIcons();
+            loadQuestion();
+        }
+    </script>
+</body>
+</html>
